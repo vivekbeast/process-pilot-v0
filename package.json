@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+        "db:seed": "node --experimental-specifier-resolution=node ./scripts/seedDatabase.js"
   },
   "dependencies": {
     "ag-grid-community": "^34.2.0",
