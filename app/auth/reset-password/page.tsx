@@ -2,38 +2,53 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
-import { User, Mail, CheckCircle2, AlertCircle, ArrowLeft, Key, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Lock, CheckCircle2, AlertCircle, ArrowLeft, Key, Sparkles, Shield } from "lucide-react";
 import NavBar from "../../../components/NavBar";
 
-export default function ForgotPasswordPage() {
-  const [loginId, setLoginId] = useState("");
-  const [email, setEmail] = useState("");
+export default function ResetPasswordPage() {
+  const [otp, setOtp] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleForgotPassword = async (e: { preventDefault: () => void; }) => {
+  const handleResetPassword = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
     setSuccess("");
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const res = await fetch("/api/users/forgot-password", {
+      const res = await fetch("/api/users/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ loginId, email }),
+        body: JSON.stringify({ otp, password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        setSuccess("Password reset instructions have been sent to your email address.");
-        // Don't redirect automatically for security - let user go back manually
-        setTimeout(() => router.push("/auth/reset-password"), 3000);
+        setSuccess("Password has been reset successfully! Redirecting to login...");
+        setTimeout(() => {
+          router.push("/auth/login");
+        }, 3000);
       } else {
-        setError(data.message || "Password reset request failed.");
+        setError(data.message || "Password reset failed.");
       }
     } catch (err) {
       setError("Server not reachable. Try again.");
@@ -65,22 +80,22 @@ export default function ForgotPasswordPage() {
           <div className="text-center space-y-6">
             <div className="inline-flex items-center bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-200 rounded-full px-4 py-2 text-sm font-medium text-amber-800 mb-4">
               <Sparkles className="w-4 h-4 mr-2" />
-              Password Recovery
+              Set New Password
             </div>
           </div>
 
-          {/* Forgot Password Form */}
+          {/* Reset Password Form */}
           <div className="w-full max-w-md mx-auto">
             <div className="bg-white shadow-2xl rounded-2xl border border-gray-100 overflow-hidden">
               {/* Form Header */}
               <div className="bg-gradient-to-r from-slate-600 to-slate-700 px-8 py-6">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
-                    <Key className="w-6 h-6 text-slate-600" />
+                    <Shield className="w-6 h-6 text-slate-600" />
                   </div>
                   <div>
                     <h2 className="text-white text-xl font-bold">Reset Password</h2>
-                    <p className="text-slate-300 text-sm">Recover your ProcessPilot account</p>
+                    <p className="text-slate-300 text-sm">Create your new secure password</p>
                   </div>
                 </div>
               </div>
@@ -89,7 +104,7 @@ export default function ForgotPasswordPage() {
               <div className="px-8 py-8">
                 {/* Back to Login Link */}
                 <div className="mb-6">
-                  <Link href="/auth/login" className="inline-flex cursor-pointer items-center text-sm text-gray-600 hover:text-amber-600 transition-colors font-medium">
+                  <Link href="/auth/login" className="inline-flex items-center text-sm text-gray-600 hover:text-amber-600 transition-colors font-medium">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Sign In
                   </Link>
@@ -117,61 +132,120 @@ export default function ForgotPasswordPage() {
                   <>
                     <div className="text-center mb-6">
                       <p className="text-gray-600 text-sm leading-relaxed">
-                        Enter your Login ID and email address to receive password reset instructions.
+                        Enter the OTP from your email and create a new secure password.
                       </p>
                     </div>
 
-                    <form onSubmit={handleForgotPassword} className="space-y-6">
-                      {/* Login ID Field */}
+                    <form onSubmit={handleResetPassword} className="space-y-6">
+                      {/* OTP Field */}
                       <div className="group">
                         <label className="block text-sm font-semibold text-gray-800 mb-2">
-                          Login ID
+                          Verification Code (OTP)
                         </label>
                         <div className="relative">
-                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-amber-500 transition-colors" />
+                          <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-amber-500 transition-colors" />
                           <input
                             type="text"
-                            value={loginId}
-                            onChange={(e) => setLoginId(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 text-gray-900 rounded-xl focus:border-amber-400 focus:ring-4 focus:ring-amber-100 bg-gray-50 hover:bg-white transition-all duration-200 text-sm font-medium placeholder-gray-400"
-                            placeholder="Enter your Login ID"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                            className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 text-gray-900 rounded-xl focus:border-amber-400 focus:ring-4 focus:ring-amber-100 bg-gray-50 hover:bg-white transition-all duration-200 text-sm font-medium placeholder-gray-400 text-center tracking-widest"
+                            placeholder="000000"
                             required
+                            maxLength={6}
                           />
                         </div>
+                        <p className="text-xs text-gray-500 mt-1">Enter the 6-digit code sent to your email</p>
                       </div>
 
-                      {/* Email Field */}
+                      {/* New Password Field */}
                       <div className="group">
                         <label className="block text-sm font-semibold text-gray-800 mb-2">
-                          Email Address
+                          New Password
                         </label>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-amber-500 transition-colors" />
+                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-amber-500 transition-colors" />
                           <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            type={showPassword ? "text" : "password"}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full pl-11 pr-12 py-3.5 border-2 border-gray-200 rounded-xl focus:border-amber-400 focus:ring-4 focus:ring-amber-100 bg-gray-50 hover:bg-white transition-all duration-200 text-sm font-medium placeholder-gray-400"
+                            placeholder="Create a secure password"
+                            required
+                            minLength={8}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                          >
+                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Minimum 8 characters required</p>
+                      </div>
+
+                      {/* Confirm New Password Field */}
+                      <div className="group">
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                          Confirm New Password
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-amber-500 transition-colors" />
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-amber-400 focus:ring-4 focus:ring-amber-100 bg-gray-50 hover:bg-white transition-all duration-200 text-sm font-medium placeholder-gray-400"
-                            placeholder="your.email@company.com"
+                            placeholder="Confirm your new password"
                             required
                           />
                         </div>
+                        {password && confirmPassword && (
+                          <p className={`text-xs mt-1 ${password === confirmPassword ? 'text-green-600' : 'text-red-600'}`}>
+                            {password === confirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
+                          </p>
+                        )}
                       </div>
+
+                      {/* Password Strength Indicators */}
+                      {password && (
+                        <div className="bg-gray-50 rounded-xl p-4">
+                          <p className="text-xs font-semibold text-gray-700 mb-2">Password Requirements:</p>
+                          <div className="space-y-1">
+                            <div className={`flex items-center text-xs ${password.length >= 8 ? 'text-green-600' : 'text-gray-500'}`}>
+                              <span className="mr-2">{password.length >= 8 ? '✓' : '○'}</span>
+                              At least 8 characters
+                            </div>
+                            <div className={`flex items-center text-xs ${/[A-Z]/.test(password) ? 'text-green-600' : 'text-gray-500'}`}>
+                              <span className="mr-2">{/[A-Z]/.test(password) ? '✓' : '○'}</span>
+                              Contains uppercase letter
+                            </div>
+                            <div className={`flex items-center text-xs ${/[a-z]/.test(password) ? 'text-green-600' : 'text-gray-500'}`}>
+                              <span className="mr-2">{/[a-z]/.test(password) ? '✓' : '○'}</span>
+                              Contains lowercase letter
+                            </div>
+                            <div className={`flex items-center text-xs ${/\d/.test(password) ? 'text-green-600' : 'text-gray-500'}`}>
+                              <span className="mr-2">{/\d/.test(password) ? '✓' : '○'}</span>
+                              Contains number
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       <button
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isLoading || !otp || !password || !confirmPassword || password !== confirmPassword}
                         className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl disabled:scale-100 disabled:shadow-none flex items-center justify-center gap-2"
                       >
                         {isLoading ? (
                           <>
                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            Sending Instructions...
+                            Resetting Password...
                           </>
                         ) : (
                           <>
-                            <Key className="w-4 h-4" />
-                            Send Reset Instructions
+                            <Shield className="w-4 h-4" />
+                            Reset Password
                           </>
                         )}
                       </button>
@@ -182,28 +256,22 @@ export default function ForgotPasswordPage() {
                 {success && (
                   <div className="text-center space-y-4">
                     <div className="text-sm text-gray-600">
-                      <p className="mb-3">Check your email inbox and spam folder.</p>
+                      <p className="mb-3">Your password has been successfully reset.</p>
+                      <p>You can now sign in with your new password.</p>
                     </div>
-                    <Link 
-                      href="/auth/login"
-                      className="inline-flex items-center cursor-pointer justify-center w-full bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white py-3 px-6 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg gap-2"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      Back to Sign In
-                    </Link>
                   </div>
                 )}
 
                 {/* Footer */}
                 <div className="text-center mt-8 pt-6 border-t border-gray-100">
                   <p className="text-sm text-gray-600">
-                    Remember your password?{" "}
-                    <Link href="/auth/login" className="font-semibold cursor-pointer text-amber-600 hover:text-amber-700 hover:underline transition-colors">
-                      Sign in here
+                    Didnt receive the code?{" "}
+                    <Link href="/auth/forgot-password" className="font-semibold text-amber-600 hover:text-amber-700 hover:underline transition-colors">
+                      Request new one
                     </Link>
                   </p>
                   <p className="text-xs text-gray-400 mt-3">
-                    Need help? Contact our support team
+                    Your password will be encrypted and stored securely
                   </p>
                 </div>
               </div>

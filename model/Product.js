@@ -2,15 +2,18 @@
 import { Schema, model } from 'mongoose';
 
 const ProductSchema = new Schema({
-  sku: { type: String, unique: true, index: true },
-  name: String,
+  code: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
   description: String,
-  unit: String,              // e.g., 'pcs'
-  productType: { type: String, enum: ['raw_material','finished_good','sub_assembly'] },
-  isSellable: Boolean,
-  defaultCost: Number,
-  stockQty: { type: Number, default: 0 }, // denormalized for quick reads
-  uom: String,
-  attributes: Schema.Types.Mixed
-}, { timestamps: true });
+  unitOfMeasure: { type: String, required: true },
+  productType: { type: String, enum: ["raw_material", "finished_good", "semi_finished"], required: true },
+  standardCost: { type: Number, required: true },
+  isActive: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
 export default model('Product', ProductSchema);
+
+
+import mongoose from "mongoose";
+const { Schema, model } = mongoose;

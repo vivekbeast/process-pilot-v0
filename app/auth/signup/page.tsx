@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, User, Mail, Lock, CheckCircle2, AlertCircle, UserPlus, Sparkles } from "lucide-react";
 import NavBar from "../../../components/NavBar";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
   const [loginId, setLoginId] = useState("");        // replaced userName
@@ -27,6 +28,15 @@ export default function RegisterPage() {
       setIsLoading(false);
       return;
     }
+
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+
+    if (!emailPattern.test(email)) {
+    setIsLoading(false);
+    toast.warning("Invalid email"); 
+    return;
+  }
 
     try {
       // localStorage.clear();
@@ -53,6 +63,9 @@ export default function RegisterPage() {
       setIsLoading(false);
     }
   };
+
+
+
 
   return (
     <div className="relative min-h-screen">
@@ -156,6 +169,8 @@ export default function RegisterPage() {
                         required
                         minLength={6}
                         maxLength={12}
+                        pattern="^[A-Za-z][A-Za-z0-9_]{5,11}$"
+                        title="Login ID must be 6-12 characters, start with a letter, and contain only letters, numbers, and underscores."
                       />
                     </div>
                     <p className="text-xs text-gray-500 mt-1">6-12 characters, letters and numbers only</p>
@@ -175,6 +190,8 @@ export default function RegisterPage() {
                         className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-amber-400 focus:ring-4 focus:ring-amber-100 bg-gray-50 hover:bg-white transition-all duration-200 text-sm font-medium placeholder-gray-400"
                         placeholder="your.email@company.com"
                         required
+                         pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$"
+                        title="Please enter a valid email address."
                       />
                     </div>
                   </div>
@@ -245,7 +262,7 @@ export default function RegisterPage() {
                 <div className="text-center mt-8 pt-6 border-t border-gray-100">
                   <p className="text-sm text-gray-600">
                     Already have an account?{" "}
-                    <Link href="/auth/login" className="font-semibold text-amber-600 hover:text-amber-700 hover:underline transition-colors">
+                    <Link href="/auth/login" className="font-semibold cursor-pointer text-amber-600 hover:text-amber-700 hover:underline transition-colors">
                       Sign in here
                     </Link>
                   </p>

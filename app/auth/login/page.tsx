@@ -81,7 +81,7 @@ export default function LoginPage() {
                     <LogIn className="w-6 h-6 text-slate-600" />
                   </div>
                   <div>
-                    <h2 className="text-white text-xl font-bold">Sign In</h2>
+                    <h2 className="text-white text-xl font-bold cursor-pointer">Sign In</h2>
                     <p className="text-slate-300 text-sm">Access your ProcessPilot account</p>
                   </div>
                 </div>
@@ -107,7 +107,7 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                <form onSubmit={handleLogin} className="space-y-6">
+                <form onSubmit={handleLogin} className="space-y-6 text-black">
                   {/* Login ID Field */}
                   <div className="group">
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
@@ -161,7 +161,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl disabled:scale-100 disabled:shadow-none flex items-center justify-center gap-2"
+                    className="w-full cursor-pointer bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl disabled:scale-100 disabled:shadow-none flex items-center justify-center gap-2"
                   >
                     {isLoading ? (
                       <>

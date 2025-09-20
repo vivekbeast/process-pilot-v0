@@ -14,6 +14,8 @@ import {
   Globe
 } from 'lucide-react';
 import NavBar from '../components/NavBar';
+import Link from 'next/link';
+import Image from 'next/image';
 const ProcessPilotLandingPage: React.FC = () => {
   const features = [
     {
@@ -71,7 +73,7 @@ const ProcessPilotLandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header Space - Reserved for Layout */}
-      <div className="h-20 bg-[#3F4F5F] flex items-center justify-center">
+      <div className="h-20 border-r-2 border-l-2 border-solid border-amber-300 flex items-center justify-center">
         <NavBar />
       </div>
 
@@ -100,10 +102,10 @@ const ProcessPilotLandingPage: React.FC = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <button className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors duration-300 flex items-center justify-center">
+            <Link href="/auth/signup" className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors duration-300 flex items-center justify-center">
               Get Started
               <ArrowRight className="ml-2 w-5 h-5" />
-            </button>
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -170,7 +172,7 @@ const ProcessPilotLandingPage: React.FC = () => {
       </section>
 
       {/* Problem Statement Section */}
-      <section className="py-20 bg-slate-600 text-white">
+      <section className="py-20 bg-white text-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -180,46 +182,44 @@ const ProcessPilotLandingPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-start">
                   <CheckCircle className="w-6 h-6 text-amber-400 mt-1 mr-3 flex-shrink-0" />
-                  <p className="text-gray-300">End fragmented systems for orders, stock, and BOMs</p>
+                  <p className="text-gray-700">End fragmented systems for orders, stock, and BOMs</p>
                 </div>
                 <div className="flex items-start">
                   <CheckCircle className="w-6 h-6 text-amber-400 mt-1 mr-3 flex-shrink-0" />
-                  <p className="text-gray-300">Gain complete visibility into production stages</p>
+                  <p className="text-gray-700">Gain complete visibility into production stages</p>
                 </div>
                 <div className="flex items-start">
                   <CheckCircle className="w-6 h-6 text-amber-400 mt-1 mr-3 flex-shrink-0" />
-                  <p className="text-gray-300">Dynamic dashboards for instant order status</p>
+                  <p className="text-gray-700">Dynamic dashboards for instant order status</p>
                 </div>
                 <div className="flex items-start">
                   <CheckCircle className="w-6 h-6 text-amber-400 mt-1 mr-3 flex-shrink-0" />
-                  <p className="text-gray-300">Seamless integration across all departments</p>
+                  <p className="text-gray-700">Seamless integration across all departments</p>
                 </div>
                 <div className="flex items-start">
                   <CheckCircle className="w-6 h-6 text-amber-400 mt-1 mr-3 flex-shrink-0" />
-                  <p className="text-gray-300">Eliminate manual paperwork and reduce errors</p>
+                  <p className="text-gray-700">Eliminate manual paperwork and reduce errors</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white bg-opacity-10 p-8 rounded-xl backdrop-blur-sm">
+            <div className=" bg-[#3F4F5F] bg-opacity-10 p-8 rounded-xl backdrop-blur-sm">
               <h3 className="text-2xl font-bold mb-6 text-amber-400">Ready to Get Started?</h3>
-              <p className="text-gray-300 mb-6">
+              <p className="text-white mb-6">
                 Join hundreds of manufacturers who have streamlined their operations with ProcessPilot.
               </p>
-              <button className="w-full bg-amber-500 hover:bg-amber-600 text-white py-4 px-6 rounded-lg font-semibold text-lg transition-colors duration-300">
-                Schedule a Demo
-              </button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-800 text-white py-12">
+      <footer className="bg-[#3F4F5F] text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center mb-4">
-                <Settings className="w-8 h-8 mr-3 text-amber-400" />
+                {/* <Settings className="w-8 h-8 mr-3 text-amber-400" /> */}
+                <Image src="/logo.png" alt="logo" width={60} height={60}  priority objectFit='cover' />
                 <span className="text-2xl font-bold">ProcessPilot</span>
               </div>
               <p className="text-gray-400 mb-4">
@@ -234,8 +234,6 @@ const ProcessPilotLandingPage: React.FC = () => {
               <h4 className="font-semibold mb-4 text-amber-400">Product</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Demo</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Integration</a></li>
               </ul>
             </div>
