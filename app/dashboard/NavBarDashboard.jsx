@@ -67,11 +67,10 @@ const Navbar = () => {
                 </button>
             </div>
             <ul className="p-4 space-y-2">
-                <li><a href="#" className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-colors"><Home size={20}/> Manufacturing Orders</a></li>
-                <li><a href="#" className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-colors"><Briefcase size={20}/> Work Orders</a></li>
+                <li><a href="/" className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-colors"><Home size={20}/> Manufacturing Orders</a></li>
+                <li><a href="/dashboard/work-orders" className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-colors"><Briefcase size={20}/> Work Orders</a></li>
                 <li><a href="#" className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-colors"><FileText size={20}/> Bills of Materials</a></li>
-                <li><a href="#" className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-colors"><Settings size={20}/> Work Center</a></li>
-                <li><a href="#" className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-colors"><Book size={20}/> Product Master</a></li>
+                <li><a href="/dashboard/work-centers" className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-colors"><Settings size={20}/> Work Center</a></li>
                 <li><a href="#" className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-colors"><Box size={20}/> Stock Ledger</a></li>
             </ul>
         </div>

@@ -1,5 +1,4 @@
-// models/Product.js
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose'; // Use 'models'
 
 const ProductSchema = new Schema({
   code: { type: String, required: true, unique: true },
@@ -9,11 +8,9 @@ const ProductSchema = new Schema({
   productType: { type: String, enum: ["raw_material", "finished_good", "semi_finished"], required: true },
   standardCost: { type: Number, required: true },
   isActive: { type: Boolean, default: true },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
-export default model('Product', ProductSchema);
+}, { timestamps: true }); // It's good practice to add timestamps
 
+// Use the standard Next.js pattern to prevent model recompilation errors
+const Product = models.Product || model('Product', ProductSchema);
 
-import mongoose from "mongoose";
-const { Schema, model } = mongoose;
+export default Product;

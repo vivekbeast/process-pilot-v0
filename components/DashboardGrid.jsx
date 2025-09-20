@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 // import 'ag-grid-community/styles/ag-grid.css';
 // import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -8,55 +8,235 @@ import 'ag-grid-community/styles/ag-grid.css'; // base styles
 import 'ag-grid-community/styles/ag-theme-quartz.css'; // quartz theme
 import { useRouter } from 'next/navigation';
 const SimpleDashboard = () => {
+  // const [searchTerm, setSearchTerm] = useState('');
+  //   const [rowData, setRowData] = useState([]);
+  // const [activeFilter, setActiveFilter] = useState('All');
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState('');
+  // const router = useRouter();
+
+  // const columnDefs = [
+  //   { headerName: "Reference", field: "moNumber", sortable: true, filter: true },
+  //   { headerName: "Start Date", field: "scheduleStart", sortable: true, filter: true },
+  //   { headerName: "Finished Product", field: "finishedProduct", sortable: true, filter: true },
+  //   { headerName: "Component Status", field: "componentStatus", sortable: true, filter: true },
+  //   { headerName: "Quantity", field: "quantity", sortable: true, filter: true },
+  //   { headerName: "Status", field: "status", sortable: true, filter: true },
+  // ];
+
+  // useEffect(() => {
+  //   const fetchOrders = async () => {
+  //     setLoading(true);
+  //     setError("");
+
+  //     try {
+  //       const res = await fetch("/api/manufacturing-orders");
+  //       const result = await res.json();
+  //       if (!res.ok) throw new Error(result.message || "Failed to fetch orders");
+
+  //       // Map API response to grid data
+  //       const mappedData = result.data.map(order => ({
+  //         moNumber: order.moNumber,
+  //         scheduleStart: order.scheduleStart ? new Date(order.scheduleStart).toLocaleDateString() : "Not Scheduled",
+  //         finishedProduct: order.product?.name || "Unknown",
+  //         componentStatus: order.componentStatus,
+  //         quantity: order.quantity + " Units",
+  //         status: order.status.charAt(0).toUpperCase() + order.status.slice(1).replace("_", "-")
+  //       }));
+
+  //       setRowData(mappedData);
+  //     } catch (err) {
+  //       setError(err.message);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchOrders();
+  // }, []);
+
+  // if (loading) return <div>Loading...</div>;
+  // if (error) return <div>Error: {error}</div>;
+  //   const handleNewOrder = async () => {
+  //   try {
+  //     const res = await fetch("/api/manufacturing-orders/new", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" }
+  //     });
+
+  //     if (!res.ok) throw new Error("Failed to create new order");
+
+  //     const data = await res.json(); // e.g., { reference: "MO-000006" }
+
+  //     // Navigate to create page with the new reference ID
+  //     router.push(`/dashboard/manufacturing-orders/?ref=${data.reference}`);
+  //   } catch (err) {
+  //     console.error("Error creating new order:", err);
+  //   }
+  // };
+
+  // // Status badge component
+  // const StatusBadge = ({ value }) => {
+  //   const colors = {
+  //     'Confirmed': 'bg-blue-100 text-blue-800',
+  //     'In-Progress': 'bg-yellow-100 text-yellow-800',
+  //     'To Close': 'bg-green-100 text-green-800',
+  //     'Late': 'bg-red-100 text-red-800',
+  //     'Not Assigned': 'bg-gray-100 text-gray-800'
+  //   };
+    
+  //   return (
+  //     <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[value] || 'bg-gray-100 text-gray-800'}`}>
+  //       {value}
+  //     </span>
+  //   );
+  // };
+
+  // const ComponentStatusBadge = ({ value }) => {
+  //   const colors = {
+  //     'Available': 'bg-green-100 text-green-800',
+  //     'Not Available': 'bg-red-100 text-red-800',
+  //     'Partially Available': 'bg-yellow-100 text-yellow-800'
+  //   };
+    
+  //   return (
+  //     <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[value] || 'bg-gray-100 text-gray-800'}`}>
+  //       {value}
+  //     </span>
+  //   );
+  // };
+
+  // // AG Grid column definitions
+  // // const columnDefs = [
+  // //   {
+  // //     headerName: '',
+  // //     checkboxSelection: true,
+  // //     headerCheckboxSelection: true,
+  // //     width: 50
+  // //   },
+  // //   {
+  // //     headerName: 'Reference',
+  // //     field: 'reference',
+  // //     width: 120,
+  // //     cellClass: 'font-medium text-blue-600'
+  // //   },
+  // //   {
+  // //     headerName: 'Start Date',
+  // //     field: 'startDate',
+  // //     width: 120
+  // //   },
+  // //   {
+  // //     headerName: 'Finished Product',
+  // //     field: 'finishedProduct',
+  // //     width: 160,
+  // //     flex: 1
+  // //   },
+  // //   {
+  // //     headerName: 'Component Status',
+  // //     field: 'componentStatus',
+  // //     width: 160,
+  // //     cellRenderer: ComponentStatusBadge
+  // //   },
+  // //   {
+  // //     headerName: 'Quantity',
+  // //     field: 'quantity',
+  // //     width: 100
+  // //   },
+  // //   {
+  // //     headerName: 'State',
+  // //     field: 'state',
+  // //     width: 120,
+  // //     cellRenderer: StatusBadge
+  // //   }
+  // // ];
+
+  // // Filter tabs
+  // const filters = ['All', 'Confirmed', 'In-Progress', 'To Close', 'Late', 'Not Assigned'];
+
+  // // Filter data based on active filter and search
+  // const filteredData = useMemo(() => {
+  //   let filtered = rowData;
+    
+  //   if (activeFilter !== 'All') {
+  //     filtered = filtered.filter(row => row.state === activeFilter);
+  //   }
+    
+  //   if (searchTerm) {
+  //     filtered = filtered.filter(row => 
+  //       row.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       row.finishedProduct.toLowerCase().includes(searchTerm.toLowerCase())
+  //     );
+  //   }
+    
+  //   return filtered;
+  // }, [activeFilter, searchTerm]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [rowData, setRowData] = useState([]);
   const [activeFilter, setActiveFilter] = useState('All');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const router = useRouter();
-  // Sample manufacturing orders data
-  const rowData = [
-    {
-      reference: 'MO-000001',
-      startDate: 'Tomorrow',
-      finishedProduct: 'Dining Table',
-      componentStatus: 'Not Available',
-      quantity: '5.00 Units',
-      state: 'Confirmed'
-    },
-    {
-      reference: 'MO-000002',
-      startDate: 'Yesterday',
-      finishedProduct: 'Drawer',
-      componentStatus: 'Available',
-      quantity: '2.00 Units',
-      state: 'In-Progress'
-    },
-    {
-      reference: 'MO-000003',
-      startDate: '2024-01-15',
-      finishedProduct: 'Office Chair',
-      componentStatus: 'Available',
-      quantity: '10.00 Units',
-      state: 'To Close'
-    },
-    {
-      reference: 'MO-000004',
-      startDate: '2024-01-10',
-      finishedProduct: 'Kitchen Cabinet',
-      componentStatus: 'Partially Available',
-      quantity: '3.00 Units',
-      state: 'Late'
-    },
-    {
-      reference: 'MO-000005',
-      startDate: '2024-01-20',
-      finishedProduct: 'Bookshelf',
-      componentStatus: 'Available',
-      quantity: '7.00 Units',
-      state: 'Not Assigned'
-    }
+
+  const columnDefs = [
+    { headerName: "Reference", field: "moNumber", sortable: true, filter: true },
+    { headerName: "Start Date", field: "scheduleStart", sortable: true, filter: true },
+    { headerName: "Finished Product", field: "finishedProduct", sortable: true, filter: true },
+    { headerName: "Component Status", field: "componentStatus", sortable: true, filter: true },
+    { headerName: "Quantity", field: "quantity", sortable: true, filter: true },
+    { headerName: "Status", field: "status", sortable: true, filter: true },
   ];
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+      setError("");
 
-    const handleNewOrder = async () => {
+      try {
+        const res = await fetch("/api/manufacturing-orders");
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message || "Failed to fetch orders");
+
+        const mappedData = result.data.map(order => ({
+          moNumber: order.moNumber,
+          scheduleStart: order.scheduleStart ? new Date(order.scheduleStart).toLocaleDateString() : "Not Scheduled",
+          finishedProduct: order.product?.name || "Unknown",
+          componentStatus: order.componentStatus,
+          quantity: order.quantity + " Units",
+          status: order.status.charAt(0).toUpperCase() + order.status.slice(1).replace("_", "-")
+        }));
+
+        setRowData(mappedData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+   const filters = ['All', 'Confirmed', 'In-Progress', 'To Close', 'Late', 'Not Assigned'];
+
+
+  const filteredData = useMemo(() => {
+    let filtered = rowData;
+    
+    if (activeFilter !== 'All') {
+      filtered = filtered.filter(row => row.status === activeFilter);
+    }
+    
+    if (searchTerm) {
+      filtered = filtered.filter(row => 
+        row.moNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.finishedProduct.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    return filtered;
+  }, [rowData, activeFilter, searchTerm]);
+
+  const handleNewOrder = async () => {
     try {
       const res = await fetch("/api/manufacturing-orders/new", {
         method: "POST",
@@ -65,110 +245,12 @@ const SimpleDashboard = () => {
 
       if (!res.ok) throw new Error("Failed to create new order");
 
-      const data = await res.json(); // e.g., { reference: "MO-000006" }
-
-      // Navigate to create page with the new reference ID
+      const data = await res.json();
       router.push(`/dashboard/manufacturing-orders/?ref=${data.reference}`);
     } catch (err) {
       console.error("Error creating new order:", err);
     }
   };
-
-  // Status badge component
-  const StatusBadge = ({ value }) => {
-    const colors = {
-      'Confirmed': 'bg-blue-100 text-blue-800',
-      'In-Progress': 'bg-yellow-100 text-yellow-800',
-      'To Close': 'bg-green-100 text-green-800',
-      'Late': 'bg-red-100 text-red-800',
-      'Not Assigned': 'bg-gray-100 text-gray-800'
-    };
-    
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[value] || 'bg-gray-100 text-gray-800'}`}>
-        {value}
-      </span>
-    );
-  };
-
-  const ComponentStatusBadge = ({ value }) => {
-    const colors = {
-      'Available': 'bg-green-100 text-green-800',
-      'Not Available': 'bg-red-100 text-red-800',
-      'Partially Available': 'bg-yellow-100 text-yellow-800'
-    };
-    
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[value] || 'bg-gray-100 text-gray-800'}`}>
-        {value}
-      </span>
-    );
-  };
-
-  // AG Grid column definitions
-  const columnDefs = [
-    {
-      headerName: '',
-      checkboxSelection: true,
-      headerCheckboxSelection: true,
-      width: 50
-    },
-    {
-      headerName: 'Reference',
-      field: 'reference',
-      width: 120,
-      cellClass: 'font-medium text-blue-600'
-    },
-    {
-      headerName: 'Start Date',
-      field: 'startDate',
-      width: 120
-    },
-    {
-      headerName: 'Finished Product',
-      field: 'finishedProduct',
-      width: 160,
-      flex: 1
-    },
-    {
-      headerName: 'Component Status',
-      field: 'componentStatus',
-      width: 160,
-      cellRenderer: ComponentStatusBadge
-    },
-    {
-      headerName: 'Quantity',
-      field: 'quantity',
-      width: 100
-    },
-    {
-      headerName: 'State',
-      field: 'state',
-      width: 120,
-      cellRenderer: StatusBadge
-    }
-  ];
-
-  // Filter tabs
-  const filters = ['All', 'Confirmed', 'In-Progress', 'To Close', 'Late', 'Not Assigned'];
-
-  // Filter data based on active filter and search
-  const filteredData = useMemo(() => {
-    let filtered = rowData;
-    
-    if (activeFilter !== 'All') {
-      filtered = filtered.filter(row => row.state === activeFilter);
-    }
-    
-    if (searchTerm) {
-      filtered = filtered.filter(row => 
-        row.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.finishedProduct.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    return filtered;
-  }, [activeFilter, searchTerm]);
 
   return (
     <div className="min-h-screen bg-gray-50">
