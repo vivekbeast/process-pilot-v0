@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "lib/mongo.jsx", "lib/jwt.jsx", "app/api/users/register/route.js", "app/api/users/login/route.js", "app/dashboard/page.jsx", "app/dashboard/layout.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "lib/mongo.js", "lib/jwt.jsx", "app/api/users/register/route.js", "app/api/users/login/route.js", "app/dashboard/page.jsx", "app/dashboard/layout.jsx", "scripts/seedDatabase.js", "app/profile/page.jsx"],
   "exclude": ["node_modules"]
 }

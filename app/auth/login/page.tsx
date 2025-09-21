@@ -30,6 +30,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
+localStorage.setItem("userData", JSON.stringify(data.payload));
         setSuccess("Login successful! Redirecting...");
         setTimeout(() => {
           router.push("/dashboard");
@@ -161,7 +162,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full cursor-pointer bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl disabled:scale-100 disabled:shadow-none flex items-center justify-center gap-2"
+                    className="w-full cursor-pointer bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl disabled:scale-100 disabled:shadow-none flex items-center justify-center gap-2"
                   >
                     {isLoading ? (
                       <>

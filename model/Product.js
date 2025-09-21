@@ -24,6 +24,12 @@ const ProductSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  code: {
+  type: String,
+  unique: true,
+  default: () => `PRD-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+}
+,
   unitOfMeasure: {
     type: String,
     required: true,

@@ -1,9 +1,506 @@
+// // /api/manufacturing-orders/route.js
+// import { NextRequest, NextResponse } from 'next/server';
+// import connect from '@/lib/mongo';
+// import ManufacturingOrder from '@/model/ManufacturingOrder';
+// import Product from '@/model/Product';
+// import BOM from '@/model/BOM';
+
+// export async function GET(request) {
+//   try {
+//     await connect();
+    
+//     const { searchParams } = new URL(request.url);
+//     const id = searchParams.get('id');
+//     const page = parseInt(searchParams.get('page')) || 1;
+//     const limit = parseInt(searchParams.get('limit')) || 10;
+    
+//     if (id) {
+//       // Get single manufacturing order
+//       const mo = await ManufacturingOrder.findById(id)
+//         .populate('product', 'name unitOfMeasure')
+//         .populate({
+//           path: 'bom',
+//           populate: {
+//             path: 'components.product',
+//             select: 'name unitOfMeasure'
+//           }
+//         });
+      
+//       if (!mo) {
+//         return NextResponse.json(
+//           { success: false, message: 'Manufacturing Order not found' },
+//           { status: 404 }
+//         );
+//       }
+      
+//       return NextResponse.json({
+//         success: true,
+//         data: mo
+//       });
+//     } else {
+//       // Get all manufacturing orders with pagination
+//       const skip = (page - 1) * limit;
+      
+//       const mos = await ManufacturingOrder.find({})
+//         .populate('product', 'name unitOfMeasure')
+//         .populate('bom', 'name')
+//         .sort({ createdAt: -1 })
+//         .skip(skip)
+//         .limit(limit);
+      
+//       const total = await ManufacturingOrder.countDocuments();
+      
+//       return NextResponse.json({
+//         success: true,
+//         data: mos,
+//         pagination: {
+//           currentPage: page,
+//           totalPages: Math.ceil(total / limit),
+//           totalOrders: total,
+//           hasNext: page < Math.ceil(total / limit),
+//           hasPrev: page > 1
+//         }
+//       });
+//     }
+//   } catch (error) {
+//     console.error('GET Manufacturing Orders Error:', error);
+//     return NextResponse.json(
+//       { success: false, message: 'Internal server error' },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+// export async function POST(request) {
+//   try {
+//     await connect();
+//     
+//     const body = await request.json();
+//     const { action, ...orderData } = body;
+//     
+//     // --- FIX: CORRECTED LOGIC FOR "CREATE & CONFIRM" ---
+//     // If the action is to confirm a NEW order (no ID), create it directly with 'confirmed' status.
+//     if (action === 'confirm' && !orderData._id) {
+//       // Pass only the order data, not the whole body.
+//       return await createManufacturingOrder(orderData, 'confirmed'); 
+//     }
+//     
+//     // Handle other state transitions for EXISTING orders
+//     switch (action) {
+//       case 'create':
+//         // Creates a 'draft' order by default
+//         return await createManufacturingOrder(orderData);
+//       case 'confirm':
+//         return await confirmManufacturingOrder(orderData);
+//       case 'start':
+//         return await startProduction(orderData);
+//       case 'complete':
+//         return await completeProduction(orderData);
+//       case 'cancel':
+//         return await cancelProduction(orderData);
+//       default:
+//         // If no action is specified, default to creating a draft.
+//         return await createManufacturingOrder(body);
+//     }
+//   } catch (error) {
+//     console.error('POST Manufacturing Orders Error:', error);
+//     return NextResponse.json(
+//       { success: false, message: error.message || 'Internal server error' },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+// export async function PUT(request) {
+//   try {
+//     await connect();
+    
+//     const { searchParams } = new URL(request.url);
+//     // const id = searchParams.get('id');
+//     const reference = searchParams.get('id');
+    
+//     if (!reference) {
+//       return NextResponse.json(
+//         { success: false, message: 'Manufacturing Order ID is required' },
+//         { status: 400 }
+//       );
+//     }
+    
+//     const updateData = await request.json();
+    
+//     // Remove fields that shouldn't be updated directly
+//     delete updateData._id;
+//     delete updateData.moNumber;
+//     delete updateData.createdAt;
+//     delete updateData.updatedAt;
+    
+
+//      // string reference
+
+// const updatedMO = await ManufacturingOrder.findOneAndUpdate(
+//   { moNumber: reference },
+//   updateData,
+//   { new: true, runValidators: true }
+// )
+// .populate('product', 'name unitOfMeasure')
+// .populate({
+//   path: 'bom',
+//   populate: { path: 'components.product', select: 'name unitOfMeasure' }
+// });
+
+
+//     // const updatedMO = await ManufacturingOrder.findByIdAndUpdate(
+//     //   id,
+//     //   updateData,
+//     //   { new: true, runValidators: true }
+//     // )
+//     // .populate('product', 'name unitOfMeasure')
+//     // .populate({
+//     //   path: 'bom',
+//     //   populate: {
+//     //     path: 'components.product',
+//     //     select: 'name unitOfMeasure'
+//     //   }
+//     // });
+    
+//     if (!updatedMO) {
+//       return NextResponse.json(
+//         { success: false, message: 'Manufacturing Order not found' },
+//         { status: 404 }
+//       );
+//     }
+    
+//     return NextResponse.json({
+//       success: true,
+//       data: updatedMO,
+//       message: 'Manufacturing Order updated successfully'
+//     });
+//   } catch (error) {
+//     console.error('PUT Manufacturing Orders Error:', error);
+//     return NextResponse.json(
+//       { success: false, message: error.message || 'Internal server error' },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+// export async function DELETE(request) {
+//   try {
+//     await connect();
+    
+//     const { searchParams } = new URL(request.url);
+//     const id = searchParams.get('id');
+    
+//     if (!id) {
+//       return NextResponse.json(
+//         { success: false, message: 'Manufacturing Order ID is required' },
+//         { status: 400 }
+//       );
+//     }
+    
+//     const mo = await ManufacturingOrder.findById(id);
+    
+//     if (!mo) {
+//       return NextResponse.json(
+//         { success: false, message: 'Manufacturing Order not found' },
+//         { status: 404 }
+//       );
+//     }
+    
+//     // Only allow deletion of draft orders
+//     if (mo.status !== 'draft') {
+//       return NextResponse.json(
+//         { success: false, message: 'Only draft orders can be deleted' },
+//         { status: 400 }
+//       );
+//     }
+    
+//     await ManufacturingOrder.findByIdAndDelete(id);
+    
+//     return NextResponse.json({
+//       success: true,
+//       message: 'Manufacturing Order deleted successfully'
+//     });
+//   } catch (error) {
+//     console.error('DELETE Manufacturing Orders Error:', error);
+//     return NextResponse.json(
+//       { success: false, message: 'Internal server error' },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+// // Helper Functions
+
+
+// async function createManufacturingOrder(orderData, initialStatus = 'draft') {
+//   // --- FIX 1: USE CORRECT FIELD NAMES FROM THE START ---
+//   const { 
+//     productToManufacture: productData, // Rename for clarity
+//     quantityToProduce: quantity,       // Rename to match schema
+//     bom: bomData,                      // Rename for clarity
+//     startDate 
+//   } = orderData;
+//   
+//   // Validation
+//   if (!productData?._id) {
+//     return NextResponse.json({ success: false, message: 'Product is required' }, { status: 400 });
+//   }
+//   if (!quantity || quantity <= 0) {
+//     return NextResponse.json({ success: false, message: 'Valid quantity is required' }, { status: 400 });
+//   }
+//   if (!bomData?._id) {
+//     return NextResponse.json({ success: false, message: 'BOM is required' }, { status: 400 });
+//   }
+//   
+//   // --- FIX 2: USE findById FOR RELIABLE DOCUMENT LOOKUP ---
+//   const product = await Product.findById(productData._id);
+//   if (!product) {
+//     return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+//   }
+
+//   const bomDoc = await BOM.findById(bomData._id);
+//   if (!bomDoc) {
+//     return NextResponse.json({ success: false, message: 'BOM not found' }, { status: 404 });
+//   }
+//   
+//   // --- FIX 3: INTEGRATE REAL INVENTORY CHECK (placeholder for now) ---
+//   // This is where you would check StockLedger for component availability.
+//   // For now, we'll keep the placeholder logic.
+//   let componentStatus = 'Not Available';
+//   if (bomDoc && bomDoc.components.length > 0) {
+//     // TODO: Replace this with actual inventory checking against StockLedger.
+//     // Example: Check if (stock.quantityOnHand - stock.quantityReserved) >= requiredQty
+//     componentStatus = 'Available'; 
+//   }
+//   
+//   // Generate MO number
+//   const moNumber = await ManufacturingOrder.generateMONumber();
+//   
+//   // --- FIX 4: SAVE DATA USING CORRECT SCHEMA FIELD NAMES ---
+//   const newMO = new ManufacturingOrder({
+//     moNumber,
+//     product: product._id, // Use the ID
+//     bom: bomDoc._id,      // Use the ID
+//     quantity: quantity,   // Correct field name
+//     status: initialStatus,
+//     componentStatus,
+//     scheduleStart: startDate ? new Date(startDate) : new Date(),
+//   });
+//   
+//   await newMO.save();
+//   
+//   // Populate and return
+//   const populatedMO = await ManufacturingOrder.findById(newMO._id)
+//     .populate('product', 'name unitOfMeasure')
+//     .populate({
+//       path: 'bom',
+//       populate: { path: 'components.product', select: 'name unitOfMeasure' }
+//     });
+//   
+//   return NextResponse.json({
+//     success: true,
+//     data: populatedMO,
+//     message: `Manufacturing Order created successfully with status: ${initialStatus}`
+//   }, { status: 201 });
+// }
+
+// async function confirmManufacturingOrder(orderData) {
+//   const { _id, reference } = orderData;
+  
+//   let mo;
+//   if (_id) {
+//     mo = await ManufacturingOrder.findById(_id);
+//   } else if (reference) {
+//     mo = await ManufacturingOrder.findOne({ moNumber: reference });
+//   }
+  
+//   if (!mo) {
+//     return NextResponse.json(
+//       { success: false, message: 'Manufacturing Order not found' },
+//       { status: 404 }
+//     );
+//   }
+  
+//   if (mo.status !== 'draft') {
+//     return NextResponse.json(
+//       { success: false, message: 'Only draft orders can be confirmed' },
+//       { status: 400 }
+//     );
+//   }
+  
+//   // Update status
+//   mo.status = 'confirmed';
+//   await mo.save();
+  
+//   // Populate and return
+//   const populatedMO = await ManufacturingOrder.findById(mo._id)
+//     .populate('product', 'name unitOfMeasure')
+//     .populate({
+//       path: 'bom',
+//       populate: {
+//         path: 'components.product',
+//         select: 'name unitOfMeasure'
+//       }
+//     });
+  
+//   return NextResponse.json({
+//     success: true,
+//     data: populatedMO,
+//     message: 'Manufacturing Order confirmed successfully'
+//   });
+// }
+
+// async function startProduction(orderData) {
+//   const { _id, reference } = orderData;
+  
+//   let mo;
+//   if (_id) {
+//     mo = await ManufacturingOrder.findById(_id);
+//   } else if (reference) {
+//     mo = await ManufacturingOrder.findOne({ moNumber: reference });
+//   }
+  
+//   if (!mo) {
+//     return NextResponse.json(
+//       { success: false, message: 'Manufacturing Order not found' },
+//       { status: 404 }
+//     );
+//   }
+  
+//   if (mo.status !== 'confirmed') {
+//     return NextResponse.json(
+//       { success: false, message: 'Only confirmed orders can be started' },
+//       { status: 400 }
+//     );
+//   }
+  
+//   // Update status
+//   mo.status = 'in_progress';
+//   mo.scheduleStart = new Date();
+//   await mo.save();
+  
+//   // Populate and return
+//   const populatedMO = await ManufacturingOrder.findById(mo._id)
+//     .populate('product', 'name unitOfMeasure')
+//     .populate({
+//       path: 'bom',
+//       populate: {
+//         path: 'components.product',
+//         select: 'name unitOfMeasure'
+//       }
+//     });
+  
+//   return NextResponse.json({
+//     success: true,
+//     data: populatedMO,
+//     message: 'Production started successfully'
+//   });
+// }
+
+// async function completeProduction(orderData) {
+//   const { _id, reference, producedQty } = orderData;
+  
+//   let mo;
+//   if (_id) {
+//     mo = await ManufacturingOrder.findById(_id);
+//   } else if (reference) {
+//     mo = await ManufacturingOrder.findOne({ moNumber: reference });
+//   }
+  
+//   if (!mo) {
+//     return NextResponse.json(
+//       { success: false, message: 'Manufacturing Order not found' },
+//       { status: 404 }
+//     );
+//   }
+  
+//   if (mo.status !== 'in_progress' && mo.status !== 'to_close') {
+//     return NextResponse.json(
+//       { success: false, message: 'Only in-progress orders can be completed' },
+//       { status: 400 }
+//     );
+//   }
+  
+//   // Update status and produced quantity
+//   mo.status = 'done';
+//   mo.producedQty = producedQty || mo.quantity;
+//   mo.scheduleEnd = new Date();
+//   await mo.save();
+  
+//   // Populate and return
+//   const populatedMO = await ManufacturingOrder.findById(mo._id)
+//     .populate('product', 'name unitOfMeasure')
+//     .populate({
+//       path: 'bom',
+//       populate: {
+//         path: 'components.product',
+//         select: 'name unitOfMeasure'
+//       }
+//     });
+  
+//   return NextResponse.json({
+//     success: true,
+//     data: populatedMO,
+//     message: 'Production completed successfully'
+//   });
+// }
+
+// async function cancelProduction(orderData) {
+//   const { _id, reference } = orderData;
+  
+//   let mo;
+//   if (_id) {
+//     mo = await ManufacturingOrder.findById(_id);
+//   } else if (reference) {
+//     mo = await ManufacturingOrder.findOne({ moNumber: reference });
+//   }
+  
+//   if (!mo) {
+//     return NextResponse.json(
+//       { success: false, message: 'Manufacturing Order not found' },
+//       { status: 404 }
+//     );
+//   }
+  
+//   if (mo.status === 'done') {
+//     return NextResponse.json(
+//       { success: false, message: 'Completed orders cannot be cancelled' },
+//       { status: 400 }
+//     );
+//   }
+  
+//   // Update status
+//   mo.status = 'cancelled';
+//   await mo.save();
+  
+//   // Populate and return
+//   const populatedMO = await ManufacturingOrder.findById(mo._id)
+//     .populate('product', 'name unitOfMeasure')
+//     .populate({
+//       path: 'bom',
+//       populate: {
+//         path: 'components.product',
+//         select: 'name unitOfMeasure'
+//       }
+//     });
+  
+//   return NextResponse.json({
+//     success: true,
+//     data: populatedMO,
+//     message: 'Manufacturing Order cancelled successfully'
+//   });
+// }
+
 // /api/manufacturing-orders/route.js
 import { NextRequest, NextResponse } from 'next/server';
 import connect from '@/lib/mongo';
 import ManufacturingOrder from '@/model/ManufacturingOrder';
 import Product from '@/model/Product';
 import BOM from '@/model/BOM';
+import WorkCenter from '@/model/WorkCenter';
+import WorkOrder from '@/model/WorkOrder';
 
 export async function GET(request) {
   try {
@@ -15,7 +512,7 @@ export async function GET(request) {
     const limit = parseInt(searchParams.get('limit')) || 10;
     
     if (id) {
-      // Get single manufacturing order
+      // Get single manufacturing order with work orders
       const mo = await ManufacturingOrder.findById(id)
         .populate('product', 'name unitOfMeasure')
         .populate({
@@ -33,9 +530,17 @@ export async function GET(request) {
         );
       }
       
+      // Get associated work orders
+      const workOrders = await WorkOrder.find({ moNumber: mo.moNumber })
+        .populate('workCenter', 'name code costPerHour')
+        .sort({ sequence: 1 }); // Use 'sequence' instead of 'sequenceNumber'
+      
       return NextResponse.json({
         success: true,
-        data: mo
+        data: {
+          ...mo.toObject(),
+          workOrders
+        }
       });
     } else {
       // Get all manufacturing orders with pagination
@@ -71,45 +576,40 @@ export async function GET(request) {
   }
 }
 
-
 export async function POST(request) {
-  try {
-    await connect();
-    
-    const body = await request.json();
-    const { action, ...orderData } = body;
-    
-    // --- FIX: CORRECTED LOGIC FOR "CREATE & CONFIRM" ---
-    // If the action is to confirm a NEW order (no ID), create it directly with 'confirmed' status.
-    if (action === 'confirm' && !orderData._id) {
-      // Pass only the order data, not the whole body.
-      return await createManufacturingOrder(orderData, 'confirmed'); 
-    }
-    
-    // Handle other state transitions for EXISTING orders
-    switch (action) {
-      case 'create':
-        // Creates a 'draft' order by default
-        return await createManufacturingOrder(orderData);
-      case 'confirm':
-        return await confirmManufacturingOrder(orderData);
-      case 'start':
-        return await startProduction(orderData);
-      case 'complete':
-        return await completeProduction(orderData);
-      case 'cancel':
-        return await cancelProduction(orderData);
-      default:
-        // If no action is specified, default to creating a draft.
-        return await createManufacturingOrder(body);
-    }
-  } catch (error) {
-    console.error('POST Manufacturing Orders Error:', error);
-    return NextResponse.json(
-      { success: false, message: error.message || 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  try {
+    await connect();
+    
+    const body = await request.json();
+    const { action, ...orderData } = body;
+    
+    // If the action is to confirm a NEW order (no ID), create it directly with 'confirmed' status.
+    if (action === 'confirm' && !orderData._id) {
+      return await createManufacturingOrder(orderData, 'confirmed'); 
+    }
+    
+    // Handle other state transitions for EXISTING orders
+    switch (action) {
+      case 'create':
+        return await createManufacturingOrder(orderData);
+      case 'confirm':
+        return await confirmManufacturingOrder(orderData);
+      case 'start':
+        return await startProduction(orderData);
+      case 'complete':
+        return await completeProduction(orderData);
+      case 'cancel':
+        return await cancelProduction(orderData);
+      default:
+        return await createManufacturingOrder(body);
+    }
+  } catch (error) {
+    console.error('POST Manufacturing Orders Error:', error);
+    return NextResponse.json(
+      { success: false, message: error.message || 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PUT(request) {
@@ -117,7 +617,6 @@ export async function PUT(request) {
     await connect();
     
     const { searchParams } = new URL(request.url);
-    // const id = searchParams.get('id');
     const reference = searchParams.get('id');
     
     if (!reference) {
@@ -135,34 +634,16 @@ export async function PUT(request) {
     delete updateData.createdAt;
     delete updateData.updatedAt;
     
-
-     // string reference
-
-const updatedMO = await ManufacturingOrder.findOneAndUpdate(
-  { moNumber: reference },
-  updateData,
-  { new: true, runValidators: true }
-)
-.populate('product', 'name unitOfMeasure')
-.populate({
-  path: 'bom',
-  populate: { path: 'components.product', select: 'name unitOfMeasure' }
-});
-
-
-    // const updatedMO = await ManufacturingOrder.findByIdAndUpdate(
-    //   id,
-    //   updateData,
-    //   { new: true, runValidators: true }
-    // )
-    // .populate('product', 'name unitOfMeasure')
-    // .populate({
-    //   path: 'bom',
-    //   populate: {
-    //     path: 'components.product',
-    //     select: 'name unitOfMeasure'
-    //   }
-    // });
+    const updatedMO = await ManufacturingOrder.findOneAndUpdate(
+      { moNumber: reference },
+      updateData,
+      { new: true, runValidators: true }
+    )
+    .populate('product', 'name unitOfMeasure')
+    .populate({
+      path: 'bom',
+      populate: { path: 'components.product', select: 'name unitOfMeasure' }
+    });
     
     if (!updatedMO) {
       return NextResponse.json(
@@ -216,11 +697,14 @@ export async function DELETE(request) {
       );
     }
     
+    // Delete associated work orders if any
+    await WorkOrder.deleteMany({ moNumber: mo.moNumber });
+    
     await ManufacturingOrder.findByIdAndDelete(id);
     
     return NextResponse.json({
       success: true,
-      message: 'Manufacturing Order deleted successfully'
+      message: 'Manufacturing Order and associated Work Orders deleted successfully'
     });
   } catch (error) {
     console.error('DELETE Manufacturing Orders Error:', error);
@@ -233,77 +717,76 @@ export async function DELETE(request) {
 
 // Helper Functions
 
-
 async function createManufacturingOrder(orderData, initialStatus = 'draft') {
-  // --- FIX 1: USE CORRECT FIELD NAMES FROM THE START ---
-  const { 
-    productToManufacture: productData, // Rename for clarity
-    quantityToProduce: quantity,       // Rename to match schema
-    bom: bomData,                      // Rename for clarity
-    startDate 
-  } = orderData;
-  
-  // Validation
-  if (!productData?._id) {
-    return NextResponse.json({ success: false, message: 'Product is required' }, { status: 400 });
-  }
-  if (!quantity || quantity <= 0) {
-    return NextResponse.json({ success: false, message: 'Valid quantity is required' }, { status: 400 });
-  }
-  if (!bomData?._id) {
-    return NextResponse.json({ success: false, message: 'BOM is required' }, { status: 400 });
-  }
-  
-  // --- FIX 2: USE findById FOR RELIABLE DOCUMENT LOOKUP ---
-  const product = await Product.findById(productData._id);
-  if (!product) {
-    return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
-  }
+  const { 
+    productToManufacture: productData,
+    quantityToProduce: quantity,
+    bom: bomData,
+    startDate 
+  } = orderData;
+  
+  // Validation
+  if (!productData?._id) {
+    return NextResponse.json({ success: false, message: 'Product is required' }, { status: 400 });
+  }
+  if (!quantity || quantity <= 0) {
+    return NextResponse.json({ success: false, message: 'Valid quantity is required' }, { status: 400 });
+  }
+  if (!bomData?._id) {
+    return NextResponse.json({ success: false, message: 'BOM is required' }, { status: 400 });
+  }
+  
+  const product = await Product.findById(productData._id);
+  if (!product) {
+    return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+  }
 
-  const bomDoc = await BOM.findById(bomData._id);
-  if (!bomDoc) {
-    return NextResponse.json({ success: false, message: 'BOM not found' }, { status: 404 });
-  }
-  
-  // --- FIX 3: INTEGRATE REAL INVENTORY CHECK (placeholder for now) ---
-  // This is where you would check StockLedger for component availability.
-  // For now, we'll keep the placeholder logic.
-  let componentStatus = 'Not Available';
-  if (bomDoc && bomDoc.components.length > 0) {
-    // TODO: Replace this with actual inventory checking against StockLedger.
-    // Example: Check if (stock.quantityOnHand - stock.quantityReserved) >= requiredQty
-    componentStatus = 'Available'; 
-  }
-  
-  // Generate MO number
-  const moNumber = await ManufacturingOrder.generateMONumber();
-  
-  // --- FIX 4: SAVE DATA USING CORRECT SCHEMA FIELD NAMES ---
-  const newMO = new ManufacturingOrder({
-    moNumber,
-    product: product._id, // Use the ID
-    bom: bomDoc._id,      // Use the ID
-    quantity: quantity,   // Correct field name
-    status: initialStatus,
-    componentStatus,
-    scheduleStart: startDate ? new Date(startDate) : new Date(),
-  });
-  
-  await newMO.save();
-  
-  // Populate and return
-  const populatedMO = await ManufacturingOrder.findById(newMO._id)
-    .populate('product', 'name unitOfMeasure')
-    .populate({
-      path: 'bom',
-      populate: { path: 'components.product', select: 'name unitOfMeasure' }
-    });
-  
-  return NextResponse.json({
-    success: true,
-    data: populatedMO,
-    message: `Manufacturing Order created successfully with status: ${initialStatus}`
-  }, { status: 201 });
+  // Get BOM - use safer population approach
+  const bomDoc = await getBOMWithOperations(bomData._id);
+  if (!bomDoc) {
+    return NextResponse.json({ success: false, message: 'BOM not found' }, { status: 404 });
+  }
+  
+  // Check component availability (placeholder)
+  let componentStatus = 'Not Available';
+  if (bomDoc && bomDoc.components && bomDoc.components.length > 0) {
+    componentStatus = 'Available'; 
+  }
+  
+  // Generate MO number
+  const moNumber = await ManufacturingOrder.generateMONumber();
+  
+  // Create Manufacturing Order
+  const newMO = new ManufacturingOrder({
+    moNumber,
+    product: product._id,
+    bom: bomDoc._id,
+    quantity: quantity,
+    status: initialStatus,
+    componentStatus,
+    scheduleStart: startDate ? new Date(startDate) : new Date(),
+  });
+  
+  await newMO.save();
+  
+  // If status is confirmed or being created as confirmed, create work orders
+  if (initialStatus === 'confirmed') {
+    await createWorkOrdersForMO(newMO, bomDoc, quantity);
+  }
+  
+  // Populate and return
+  const populatedMO = await ManufacturingOrder.findById(newMO._id)
+    .populate('product', 'name unitOfMeasure')
+    .populate({
+      path: 'bom',
+      populate: { path: 'components.product', select: 'name unitOfMeasure' }
+    });
+  
+  return NextResponse.json({
+    success: true,
+    data: populatedMO,
+    message: `Manufacturing Order created successfully with status: ${initialStatus}`
+  }, { status: 201 });
 }
 
 async function confirmManufacturingOrder(orderData) {
@@ -330,9 +813,22 @@ async function confirmManufacturingOrder(orderData) {
     );
   }
   
+  // Get BOM with operations using safer method
+  const bomDoc = await getBOMWithOperations(mo.bom);
+  
+  if (!bomDoc) {
+    return NextResponse.json(
+      { success: false, message: 'BOM not found for this Manufacturing Order' },
+      { status: 400 }
+    );
+  }
+  
   // Update status
   mo.status = 'confirmed';
   await mo.save();
+  
+  // Create work orders automatically
+  await createWorkOrdersForMO(mo, bomDoc, mo.quantity);
   
   // Populate and return
   const populatedMO = await ManufacturingOrder.findById(mo._id)
@@ -348,7 +844,7 @@ async function confirmManufacturingOrder(orderData) {
   return NextResponse.json({
     success: true,
     data: populatedMO,
-    message: 'Manufacturing Order confirmed successfully'
+    message: 'Manufacturing Order confirmed and Work Orders created successfully'
   });
 }
 
@@ -376,10 +872,21 @@ async function startProduction(orderData) {
     );
   }
   
-  // Update status
+  // Update MO status
   mo.status = 'in_progress';
   mo.scheduleStart = new Date();
   await mo.save();
+  
+  // Start the first work order
+  const firstWorkOrder = await WorkOrder.findOne({ 
+    moNumber: mo.moNumber 
+  }).sort({ sequence: 1 }); // Use 'sequence' instead of 'sequenceNumber'
+  
+  if (firstWorkOrder && firstWorkOrder.status === 'draft') {
+    firstWorkOrder.status = 'ready';
+    firstWorkOrder.actualStartDate = new Date();
+    await firstWorkOrder.save();
+  }
   
   // Populate and return
   const populatedMO = await ManufacturingOrder.findById(mo._id)
@@ -423,7 +930,19 @@ async function completeProduction(orderData) {
     );
   }
   
-  // Update status and produced quantity
+  // Complete all remaining work orders
+  await WorkOrder.updateMany(
+    { 
+      moNumber: mo.moNumber,
+      status: { $nin: ['completed', 'cancelled'] }
+    },
+    { 
+      status: 'completed',
+      actualEndDate: new Date()
+    }
+  );
+  
+  // Update MO status and produced quantity
   mo.status = 'done';
   mo.producedQty = producedQty || mo.quantity;
   mo.scheduleEnd = new Date();
@@ -471,7 +990,16 @@ async function cancelProduction(orderData) {
     );
   }
   
-  // Update status
+  // Cancel all work orders
+  await WorkOrder.updateMany(
+    { 
+      moNumber: mo.moNumber,
+      status: { $nin: ['completed'] }
+    },
+    { status: 'cancelled' }
+  );
+  
+  // Update MO status
   mo.status = 'cancelled';
   await mo.save();
   
@@ -491,4 +1019,110 @@ async function cancelProduction(orderData) {
     data: populatedMO,
     message: 'Manufacturing Order cancelled successfully'
   });
+}
+
+// SAFE BOM RETRIEVAL FUNCTION
+async function getBOMWithOperations(bomId) {
+  try {
+    // First, get the basic BOM
+    const bom = await BOM.findById(bomId);
+    if (!bom) return null;
+    
+    // Then manually populate operations if they exist
+    if (bom.operations && bom.operations.length > 0) {
+      for (let i = 0; i < bom.operations.length; i++) {
+        if (bom.operations[i].workCenter) {
+          try {
+            const workCenter = await WorkCenter.findById(bom.operations[i].workCenter);
+            bom.operations[i].workCenter = workCenter;
+          } catch (error) {
+            console.log(`Work center not found for operation ${i}:`, error.message);
+            // Keep the original ID if population fails
+          }
+        }
+      }
+    }
+    
+    return bom;
+  } catch (error) {
+    console.error('Error getting BOM with operations:', error);
+    return null;
+  }
+}
+
+// ENHANCED WORK ORDER CREATION FUNCTION
+async function createWorkOrdersForMO(manufacturingOrder, bomDoc, quantity) {
+  try {
+    // Check if BOM has operations defined
+    if (!bomDoc.operations || bomDoc.operations.length === 0) {
+      console.log(`No operations defined in BOM ${bomDoc.name}. Creating default work order.`);
+      
+      // Find a default work center or use the first available one
+      const defaultWorkCenter = await WorkCenter.findOne({ isActive: true }).sort({ name: 1 });
+      
+      if (defaultWorkCenter) {
+        const workOrder = new WorkOrder({
+          moNumber: manufacturingOrder.moNumber,
+          operationName: 'Production',
+          workCenter: defaultWorkCenter._id,
+          status: 'draft',
+          sequence: 1, // Use 'sequence' instead of 'sequenceNumber'
+          expectedDuration: 60, // Default 1 hour
+          quantityToProduce: quantity,
+          description: `Production of ${quantity} units`
+        });
+        
+        await workOrder.save();
+        console.log(`Default work order created for MO ${manufacturingOrder.moNumber}`);
+      }
+      return;
+    }
+    
+    // Create work orders for each operation in the BOM
+    for (let i = 0; i < bomDoc.operations.length; i++) {
+      const operation = bomDoc.operations[i];
+      
+      // Skip if no work center is assigned
+      if (!operation.workCenter) {
+        console.log(`Operation ${operation.operationName} has no work center assigned. Skipping.`);
+        continue;
+      }
+      
+      // Get work center ID (handle both populated and non-populated cases)
+      const workCenterId = operation.workCenter._id || operation.workCenter;
+      
+      // Calculate expected duration based on quantity and setup/cycle times
+      const setupTime = operation.setupTime || 0;
+      const cycleTime = operation.cycleTime || 1;
+      const expectedDuration = setupTime + (cycleTime * quantity);
+      
+      // Calculate estimated cost
+      const workCenterDoc = operation.workCenter._id ? operation.workCenter : await WorkCenter.findById(operation.workCenter);
+      const estimatedCost = workCenterDoc?.costPerHour ? 
+        (expectedDuration / 60) * workCenterDoc.costPerHour : 0;
+      
+      const workOrder = new WorkOrder({
+        moNumber: manufacturingOrder.moNumber,
+        operationName: operation.operationName,
+        workCenter: workCenterId,
+        status: 'draft',
+        sequence: operation.sequenceNumber || (i + 1), // Use 'sequence' for the field
+        expectedDuration,
+        setupTime,
+        cycleTime,
+        quantityToProduce: quantity,
+        estimatedCost,
+        description: operation.description || `${operation.operationName} for ${quantity} units`,
+        instructions: operation.instructions
+      });
+      
+      await workOrder.save();
+      console.log(`Work Order created: ${operation.operationName} for MO ${manufacturingOrder.moNumber}`);
+    }
+    
+    console.log(`All work orders created for Manufacturing Order ${manufacturingOrder.moNumber}`);
+  } catch (error) {
+    console.error('Error creating work orders:', error);
+    throw error;
+  }
 }

@@ -555,7 +555,7 @@ const StateProgressBar = ({ currentState }) => {
           <div
             className={`px-3 py-1 text-sm font-semibold rounded-full transition-all ${
               index <= currentIndex
-                ? "bg-green-500 text-white"
+                ? "bg-amber-300 text-white"
                 : "bg-gray-600 text-gray-300"
             }`}
           >
@@ -564,7 +564,7 @@ const StateProgressBar = ({ currentState }) => {
           {index < stateLabels.length - 1 && (
             <div
               className={`w-8 h-0.5 ${
-                index < currentIndex ? "bg-green-500" : "bg-gray-600"
+                index < currentIndex ? "bg-amber-400" : "bg-gray-600"
               }`}
             />
           )}
@@ -929,7 +929,7 @@ const ManufacturingOrderPage = () => {
     return (
       <div className="bg-[#1e1e1e] text-gray-200 min-h-screen p-8 font-mono flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-400 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-amber-400 mx-auto mb-4"></div>
           <p className="text-lg">Loading data...</p>
         </div>
       </div>
@@ -941,7 +941,7 @@ const ManufacturingOrderPage = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
-          <button onClick={() => router.back()} className="hover:text-green-400">
+          <button onClick={() => router.back()} className="hover:text-amber-400 cursor-pointer">
             <ArrowLeft size={24} />
           </button>
           <h1 className="text-2xl font-bold text-white">
@@ -964,7 +964,7 @@ const ManufacturingOrderPage = () => {
           <div>
             <h3 className="text-lg font-semibold text-white">Component Status</h3>
             <p className={`text-sm mt-1 ${
-              order.componentStatus === 'Available' ? 'text-green-400' : 
+              order.componentStatus === 'Available' ? 'text-amber-400' : 
               order.componentStatus === 'Not Available' ? 'text-red-400' : 'text-yellow-400'
             }`}>
               {order.componentStatus}
@@ -974,7 +974,7 @@ const ManufacturingOrderPage = () => {
             <button
               onClick={() => handleAction("confirm")}
               disabled={isLoading || !order.productToManufacture._id || !order.bom._id}
-              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-2 rounded-md font-bold"
+              className="bg-amber-300 hover:bg-amber-400 cursor-pointer text-gray-600 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-2 rounded-md font-bold"
             >
               {isLoading ? "Processing..." : "Confirm Order"}
             </button>
@@ -983,7 +983,7 @@ const ManufacturingOrderPage = () => {
             <button
               onClick={() => handleAction("start")}
               disabled={isLoading}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 px-4 py-2 rounded-md font-bold"
+              className="bg-amber-400 hover:bg-amber-600 cursor-pointer disabled:bg-gray-600 px-4 py-2 rounded-md font-bold"
             >
               Start Production
             </button>

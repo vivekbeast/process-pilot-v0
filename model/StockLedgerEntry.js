@@ -71,6 +71,60 @@
 
 // export default StockLedger;
 // /model/StockLedger.js
+// import mongoose from 'mongoose';
+
+// const StockLedgerSchema = new mongoose.Schema({
+//   product: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'Product',
+//     required: true
+//   },
+//   quantityOnHand: {
+//     type: Number,
+//     default: 0,
+//     min: 0
+//   },
+//   quantityReserved: {
+//     type: Number,
+//     default: 0,
+//     min: 0
+//   },
+//   quantityAvailable: {
+//     type: Number,
+//     default: 0,
+//     min: 0
+//   },
+//   averageCost: {
+//     type: Number,
+//     default: 0
+//   },
+//   location: {
+//     type: String,
+//     default: 'MAIN-WAREHOUSE'
+//   },
+//   lastMovementDate: {
+//     type: Date,
+//     default: Date.now
+//   }
+// }, {
+//   timestamps: true
+// });
+
+// // Virtual field for available quantity
+// StockLedgerSchema.virtual('availableQuantity').get(function() {
+//   return this.quantityOnHand - this.quantityReserved;
+// });
+
+// // Update quantityAvailable before saving
+// StockLedgerSchema.pre('save', function(next) {
+//   this.quantityAvailable = this.quantityOnHand - this.quantityReserved;
+//   next();
+// });
+
+// StockLedgerSchema.index({ product: 1 }, { unique: true });
+// StockLedgerSchema.index({ location: 1 });
+
+// export default mongoose.models.StockLedger || mongoose.model('StockLedger', StockLedgerSchema);
 import mongoose from 'mongoose';
 
 const StockLedgerSchema = new mongoose.Schema({
@@ -89,11 +143,6 @@ const StockLedgerSchema = new mongoose.Schema({
     default: 0,
     min: 0
   },
-  quantityAvailable: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
   averageCost: {
     type: Number,
     default: 0
@@ -107,21 +156,24 @@ const StockLedgerSchema = new mongoose.Schema({
     default: Date.now
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  // --- FIX: Ensure virtuals are included in API responses ---
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
 // Virtual field for available quantity
-StockLedgerSchema.virtual('availableQuantity').get(function() {
+StockLedgerSchema.virtual('quantityAvailable').get(function() {
   return this.quantityOnHand - this.quantityReserved;
 });
 
-// Update quantityAvailable before saving
+// Pre-save hook is good for database-level consistency, but the virtual is needed for API output.
 StockLedgerSchema.pre('save', function(next) {
-  this.quantityAvailable = this.quantityOnHand - this.quantityReserved;
+  // This logic is now primarily handled by the virtual for API reads.
   next();
 });
 
-StockLedgerSchema.index({ product: 1 }, { unique: true });
+StockLedgerSchema.index({ product: 1, location: 1 }, { unique: true });
 StockLedgerSchema.index({ location: 1 });
 
 export default mongoose.models.StockLedger || mongoose.model('StockLedger', StockLedgerSchema);
